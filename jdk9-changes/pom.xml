@@ -7,11 +7,10 @@
         <version>4.0.5-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.example</groupId>
-    <artifactId>java-stream-lamda-date-jdk8u</artifactId>
+    <artifactId>jdk9-changes</artifactId>
     <packaging>jar</packaging>
 
-    <name>java-stream-lamda</name>
+    <name>jdk9-changes</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -25,22 +24,5 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
-        </dependency>
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>9</source>
-                    <target>9</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

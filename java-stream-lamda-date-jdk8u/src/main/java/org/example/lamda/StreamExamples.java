@@ -4,6 +4,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.summingDouble;
+
 public class StreamExamples {
 
     public static void main(String[] args) {
@@ -15,9 +18,12 @@ public class StreamExamples {
         flatMapList();
         sortedList();
         matchList();
-    skipList();
+        skipList();
         joiningList();
-        groupingbyList();
+        groupingbyListViaJDK8u();
+        groupingbyListAmountViaJDK8u();
+        groupingbyListCountViaJDK8u();
+        groupingbyListViaJDK9();
     }
 
     public static void sumOfElements() {
@@ -160,9 +166,8 @@ public class StreamExamples {
 
 
     }
-
-    public static void groupingbyList() {
-
+    // 统计缺货下的商品名
+    public static void groupingbyListViaJDK8u() {
         // 1. 准备测试数据
         List<Order> orders = Arrays.asList(
                 new Order("ORD_001", 15000.0, true, "NORMAL", Arrays.asList(
@@ -179,7 +184,6 @@ public class StreamExamples {
                         new Product("iPad", 3000.0, true) // 缺货
                 ))
         );
-
         // 2. 复杂的 groupingBy 组合操作
         // 目标：Map<状态, 缺货商品名称列表>
         // 2. 使用 Java 1.8 的流操作
@@ -203,8 +207,8 @@ public class StreamExamples {
         });
 
     }
-
-    public static void groupingbyListAmount() {
+    //统计每个状态下的订单总金额
+    public static void groupingbyListAmountViaJDK8u() {
 
         // 1. 准备测试数据
         List<Order> orders = Arrays.asList(
@@ -228,16 +232,99 @@ public class StreamExamples {
         // 2. 使用 Java 1.8 的流操作
         // 思路：因为 1.8 的 groupingBy 无法直接在下游拍平，
         // 我们先构造一个中转对象，或者直接利用 AbstractMap.SimpleEntry
-        Map<String, List<String>> result = orders.stream()
+        Map<String, Double> result = orders.stream()
                 // 第一步：用 flatMap 把 Order 转换成 "状态+缺货商品名" 的中间流
-                .flatMap(order -> order.getProductList().stream()
-                        .filter(Product::isOutofStock) // 只看缺货的
-                        .map(product -> new AbstractMap.SimpleEntry<>(order.getStatus(), product.getName()))
+                .flatMap(order -> order.getProductList().stream().map(product -> new AbstractMap.SimpleEntry<>(order.getStatus(), product.getPrice()))
                 )
                 // 第二步：此时流里是一个个 Entry<状态, 商品名>
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,               // 按状态(Key)分组
-                        Collectors.mapping(Map.Entry::getValue, Collectors.toList()) // 提取商品名(Value)组成列表
+//                        Collectors.mapping(Map.Entry::getValue, Collectors.toList()) // 提取商品名(Value)组成列表
+                        summingDouble(Map.Entry::getValue)
+                ));
+
+        // 3. 打印结果
+        result.forEach((status, products) -> {
+            System.out.println("状态 [" + status + "] 下的商品价值总额: " + products);
+        });
+
+    }
+    // 统计每个状态下有多少个订单
+    public static void groupingbyListCountViaJDK8u() {
+
+        // 1. 准备测试数据
+        List<Order> orders = Arrays.asList(
+                new Order("ORD_001", 15000.0, true, "NORMAL", Arrays.asList(
+                        new Product("MacBook", 14000.0, false),
+                        new Product("Mouse", 1000.0, true) // 缺货
+                )),
+                new Order("ORD_002", 500.0, true, "NORMAL", Arrays.asList(
+                        new Product("Keyboard", 500.0, true) // 缺货
+                )),
+                new Order("ORD_003", 8000.0, false, "VIP", Arrays.asList(
+                        new Product("iPhone", 8000.0, false)
+                )),
+                new Order("ORD_004", 3000.0, true, "VIP", Arrays.asList(
+                        new Product("iPad", 3000.0, true) // 缺货
+                ))
+        );
+
+        // 2. 复杂的 groupingBy 组合操作
+        // 目标：Map<状态, 缺货商品名称列表>
+        // 2. 使用 Java 1.8 的流操作
+        // 思路：因为 1.8 的 groupingBy 无法直接在下游拍平，
+        // 我们先构造一个中转对象，或者直接利用 AbstractMap.SimpleEntry
+        Map<String, Long> result = orders.stream()
+                // 第一步：用 flatMap 把 Order 转换成 "状态+缺货商品名" 的中间流
+                .flatMap(order -> order.getProductList().stream().map(product -> new AbstractMap.SimpleEntry<>(order.getStatus(), product.getName()))
+                )
+                // 第二步：此时流里是一个个 Entry<状态, 商品名>
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,               // 按状态(Key)分组
+//                        Collectors.mapping(Map.Entry::getValue, Collectors.toList()) // 提取商品名(Value)组成列表
+                        counting()
+                ));
+
+        // 3. 打印结果
+        result.forEach((status, products) -> {
+            System.out.println("状态 [" + status + "] 下的商品数量为: " + products);
+        });
+
+    }
+
+    // 用jdk 9 重新写一下：
+    // 统计缺货下的商品名
+    public static void groupingbyListViaJDK9() {
+        // 1. 准备测试数据
+        List<Order> orders = Arrays.asList(
+                new Order("ORD_001", 15000.0, true, "NORMAL", Arrays.asList(
+                        new Product("MacBook", 14000.0, false),
+                        new Product("Mouse", 1000.0, true) // 缺货
+                )),
+                new Order("ORD_002", 500.0, true, "NORMAL", Arrays.asList(
+                        new Product("Keyboard", 500.0, true) // 缺货
+                )),
+                new Order("ORD_003", 8000.0, false, "VIP", Arrays.asList(
+                        new Product("iPhone", 8000.0, false)
+                )),
+                new Order("ORD_004", 3000.0, true, "VIP", Arrays.asList(
+                        new Product("iPad", 3000.0, true) // 缺货
+                ))
+        );
+        // 2. 复杂的 groupingBy 组合操作
+        // 目标：Map<状态, 缺货商品名称列表>
+        // 2. 使用 Java 1.8 的流操作
+        // 思路：因为 1.8 的 groupingBy 无法直接在下游拍平，
+        // 我们先构造一个中转对象，或者直接利用 AbstractMap.SimpleEntry
+        Map<String, List<String>> result = orders.stream()
+                .collect(Collectors.groupingBy(
+                        Order::getStatus,
+                        Collectors.flatMapping(
+                                order -> order.getProductList().stream()
+                                        .filter(Product::isOutofStock)
+                                        .map(Product::getName),
+                                Collectors.toList()
+                        )
                 ));
 
         // 3. 打印结果
