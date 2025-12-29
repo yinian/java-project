@@ -2,16 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.jctools</groupId>
-        <artifactId>java-project</artifactId>
+        <groupId>org.example</groupId>
+        <artifactId>java17-tutorial</artifactId>
         <version>4.0.5-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.example</groupId>
-    <artifactId>java-jdk17</artifactId>
+    <artifactId>java-9-module-controller</artifactId>
     <packaging>jar</packaging>
 
-    <name>java-jdk17</name>
+    <name>java-9-module-controller</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -25,5 +24,13 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>java-9-module-service</artifactId>
+            <version>4.0.5-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
+
+
 </project>

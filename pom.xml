@@ -71,7 +71,7 @@
 
         <module>java-concurrent-jdk8u</module>
         <module>java-stream-lamda-date-jdk8u</module>
-        <module>java-jdk17</module>
+        <module>java17-tutorial</module>
     </modules>
 
     <dependencyManagement>
@@ -81,6 +81,7 @@
                 <artifactId>osgi.annotation</artifactId>
                 <version>${osgi.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
 
