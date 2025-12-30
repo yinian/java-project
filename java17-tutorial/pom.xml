@@ -19,6 +19,7 @@
         <module>java-9-module-service-a</module>
         <module>java-9-module-service-b</module>
         <module>java9-tutorial</module>
+        <module>java-9-multi-release-jar</module>
     </modules>
 
     <properties>

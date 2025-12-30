@@ -1,0 +1,187 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>java17-tutorial</artifactId>
+        <version>4.0.5-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>java-9-multi-release-jar</artifactId>
+    <packaging>jar</packaging>
+
+    <name>java-9-multi-release-jar</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <java9.sourceDirectory>${project.basedir}/src/main/java9</java9.sourceDirectory>
+        <java9.build.outputDirectory>${project.build.directory}/classes-java9</java9.build.outputDirectory>
+
+        <java10.sourceDirectory>${project.basedir}/src/main/java10</java10.sourceDirectory>
+        <java10.build.outputDirectory>${project.build.directory}/classes-java10</java10.build.outputDirectory>
+
+        <java10.home></java10.home>
+        <java9.home></java9.home>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <executions>
+                    <execution>
+<!--                        <id>compile-java9</id>-->
+<!--                        <goals><goal>compile</goal></goals>-->
+<!--                        <configuration>-->
+<!--                            <release>9</release>-->
+<!--                            <target>-->
+<!--                                <mkdir dir="${java9.build.outputDirectory}" />-->
+<!--                                <javac srcdir="${java9.sourceDirectory}"-->
+<!--                                       destdir="${java9.build.outputDirectory}"-->
+<!--                                       classpath="${project.build.outputDirectory}"-->
+<!--                                       fork="yes"-->
+<!--                                       source="9" target="9"-->
+<!--                                       executable="${java9.home}/bin/javac"-->
+<!--                                       includeantruntime="false" />-->
+<!--                            </target>-->
+<!--&lt;!&ndash;                            <tasks>&ndash;&gt;-->
+<!--&lt;!&ndash;                               &ndash;&gt;-->
+<!--&lt;!&ndash;                            </tasks>&ndash;&gt;-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+                        <id>compile-java9</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 1. 核心属性：替代了 source/target，确保使用 Java 10 的 API 签名编译 -->
+                            <release>9</release>
+
+                            <!-- 2. 指定 Java 10 特有的源代码目录 -->
+                            <compileSourceRoots>
+                                <sourceRoot>${project.basedir}/src/main/java9</sourceRoot>
+                            </compileSourceRoots>
+
+                            <!-- 3. 直接输出到 MRJAR 要求的目录结构中，省去资源拷贝步骤 -->
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/versions/9</outputDirectory>
+
+                            <!-- 4. 关键：确保编译时能引用到默认主目录（src/main/java）下的类 -->
+                            <compilerArgs>
+                                <arg>-Xlint:all</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                    <execution>
+<!--                        <id>compile-java10</id>-->
+<!--                        <phase>compile</phase>-->
+<!--                        <configuration>-->
+<!--                            <tasks>-->
+<!--                                <mkdir dir="${java10.build.outputDirectory}" />-->
+<!--                                <javac srcdir="${java10.sourceDirectory}"-->
+<!--                                       destdir="${java10.build.outputDirectory}"-->
+<!--                                       classpath="${project.build.outputDirectory}"-->
+<!--                                       fork="yes"-->
+<!--                                       source="10" target="10"-->
+<!--                                       executable="${java10.home}/bin/javac"-->
+<!--                                       includeantruntime="false" />-->
+<!--                            </tasks>-->
+<!--                        </configuration>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+                        <id>compile-java10</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 1. 核心属性：替代了 source/target，确保使用 Java 10 的 API 签名编译 -->
+                            <release>10</release>
+
+                            <!-- 2. 指定 Java 10 特有的源代码目录 -->
+                            <compileSourceRoots>
+                                <sourceRoot>${project.basedir}/src/main/java10</sourceRoot>
+                            </compileSourceRoots>
+
+                            <!-- 3. 直接输出到 MRJAR 要求的目录结构中，省去资源拷贝步骤 -->
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/versions/10</outputDirectory>
+
+                            <!-- 4. 关键：确保编译时能引用到默认主目录（src/main/java）下的类 -->
+                            <compilerArgs>
+                                <arg>-Xlint:all</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources-java9</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/versions/9</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${java9.build.outputDirectory}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-java10</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/versions/10</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${java10.build.outputDirectory}</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
+                            <Main-Class>com.example.Main</Main-Class>
+                        </manifestEntries>
+                    </archive>
+                    <finalName>multi-release-jar-demo</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
+</project>
